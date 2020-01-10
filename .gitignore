@@ -1,0 +1,26 @@
+
+###> symfony/framework-bundle ###
+/.env
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+.idea/.gitignore
+.idea/CineCityAPI.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/php.xml
+.idea/symfony2.xml
+.idea/vcs.xml
+src/Entity/.gitignore
+src/Migrations/.gitignore
+src/Repository/.gitignore
+.idea/dataSources.local.xml
+.idea/dataSources.xml
+.idea/dataSources/846e9786-781f-4a75-bf2f-252d3dc50b14.xml
+.idea/dataSources/e17c38dd-861b-4330-86bd-4b512d9f4b48.xml
+.idea/dataSources/846e9786-781f-4a75-bf2f-252d3dc50b14/storage_v2/_src_/schema/information_schema.FNRwLQ.meta
