@@ -42,9 +42,6 @@ class FilmController extends AbstractController
 
         $objects = $this->finder->findAll();
 
-        if (empty($objects))
-            return $this->json(['error' => 'objects not found'], JsonResponse::HTTP_NOT_FOUND);
-
         return $this->json(array_map(function (Film $object) {
             return $this->serializer->normalize($object);
         }, $objects));
