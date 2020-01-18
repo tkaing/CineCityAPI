@@ -24,3 +24,6 @@ src/Repository/.gitignore
 .idea/dataSources/846e9786-781f-4a75-bf2f-252d3dc50b14.xml
 .idea/dataSources/e17c38dd-861b-4330-86bd-4b512d9f4b48.xml
 .idea/dataSources/846e9786-781f-4a75-bf2f-252d3dc50b14/storage_v2/_src_/schema/information_schema.FNRwLQ.meta
+### apache/htaccess ###
+.htaccess
+public/.htaccess
