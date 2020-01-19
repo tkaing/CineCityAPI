@@ -36,6 +36,17 @@ class FilmController extends AbstractController
     }
 
     /**
+     * @Route("/by", name="by", methods={"GET"})
+     */
+    public function by(Request $request) {
+
+        $objects = $this->finder->findBy(json_decode($request->getContent(), true));
+
+        return $this->json(array_map(function (Film $object) {
+            return $this->serializer->normalize($object);
+        }, $objects));
+    }
+    /**
      * @Route("", name="all", methods={"GET"})
      */
     public function all() {
