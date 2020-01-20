@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Film;
 use App\Repository\FilmRepository;
+use App\Service\CinemaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,14 +24,17 @@ class FilmController extends AbstractController
 {
     private $finder;
     private $manager;
+    private $service;
     private $validator;
     private $serializer;
 
     public function __construct(EntityManagerInterface $manager,
                                 ValidatorInterface $validator,
+                                CinemaService $service,
                                 FilmRepository $finder) {
         $this->finder = $finder;
         $this->manager = $manager;
+        $this->service = $service;
         $this->validator = $validator;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
@@ -42,42 +46,17 @@ class FilmController extends AbstractController
 
         $objects = $this->finder->findBy(json_decode($request->getContent(), true));
 
-        return $this->json(array_map(function (Film $object) {
-            return $this->serializer->normalize($object);
-        }, $objects));
+        return $this->json($this->service->mapObjects($objects));
     }
+
     /**
-     * @Route("", name="all", methods={"GET"})
+     * @Route("/all", name="all", methods={"GET"})
      */
     public function all() {
 
         $objects = $this->finder->findAll();
 
-        return $this->json(array_map(function (Film $object) {
-            return $this->serializer->normalize($object);
-        }, $objects));
-    }
-
-    /**
-     * @Route("", name="save", methods={"POST"})
-     */
-    public function save(Request $request) {
-
-        $object = $this->serializer->deserialize(
-            $request->getContent(), Film::class, JsonEncoder::FORMAT
-        );
-
-        $errors = $this->validator->validate($object);
-        if ($errors->count() > 0) {
-            return $this->json(array_map(function (ConstraintViolation $error) {
-                return [$error->getPropertyPath() => $error->getMessage()];
-            }, iterator_to_array($errors)), JsonResponse::HTTP_PARTIAL_CONTENT);
-        }
-
-        $this->manager->persist($object);
-        $this->manager->flush();
-
-        return $this->json($this->serializer->normalize($object));
+        return $this->json($this->service->mapObjects($objects));
     }
 
     /**
@@ -110,9 +89,7 @@ class FilmController extends AbstractController
 
         $errors = $this->validator->validate($object);
         if ($errors->count() > 0) {
-            return $this->json(array_map(function (ConstraintViolation $error) {
-                return [$error->getPropertyPath() => $error->getMessage()];
-            }, iterator_to_array($errors)), JsonResponse::HTTP_PARTIAL_CONTENT);
+            return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
         }
 
         $this->manager->flush();
@@ -134,5 +111,25 @@ class FilmController extends AbstractController
         $this->manager->flush();
 
         return $this->json(['id' => $id]);
+    }
+
+    /**
+     * @Route("/create", name="create", methods={"POST"})
+     */
+    public function create(Request $request) {
+
+        $object = $this->serializer->deserialize(
+            $request->getContent(), Film::class, JsonEncoder::FORMAT
+        );
+
+        $errors = $this->validator->validate($object);
+        if ($errors->count() > 0) {
+            return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
+        }
+
+        $this->manager->persist($object);
+        $this->manager->flush();
+
+        return $this->json($this->serializer->normalize($object));
     }
 }
