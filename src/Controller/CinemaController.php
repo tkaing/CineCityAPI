@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Film;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,27 +30,13 @@ class CinemaController extends AbstractController
     }
 
     /**
-     * @Route("/truncate/film", name="truncate-film")
+     * @Route("/date/{timestamp}", name="date", methods={"GET"})
      */
-    public function truncateFilm()
-    {
-        $classMetaDataFilm = $this->manager->getClassMetadata(Film::class);
-        $connection = $this->manager->getConnection();
+    public function date(int $timestamp) {
 
-        try {
-            $dbPlatform = $connection->getDatabasePlatform();
-            $connection->beginTransaction();
-            $connection->query('SET FOREIGN_KEY_CHECKS=0');
+        $object = new \DateTime();
+        $object->setTimestamp($timestamp);
 
-            $q = $dbPlatform->getTruncateTableSql($classMetaDataFilm->getTableName());
-
-            $connection->executeUpdate($q);
-            $connection->query('SET FOREIGN_KEY_CHECKS=1');
-            $connection->commit();
-        } catch (\Exception $e) {
-            $connection->rollback();
-        }
-
-        return $this->json(['success' => true]);
+        return $this->json(['date' => $object->format('Y-m-d H:i:s')]);
     }
 }

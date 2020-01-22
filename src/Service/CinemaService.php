@@ -18,6 +18,17 @@ class CinemaService {
     }
 
     /**
+     * Extract attribute and message.
+     * @param ConstraintViolationListInterface $errors
+     * @return array
+     */
+    public function mapErrors(ConstraintViolationListInterface $errors) {
+        return array_map(function (ConstraintViolation $error) {
+            return [ $error->getPropertyPath() => $error->getMessage() ];
+        }, iterator_to_array($errors));
+    }
+
+    /**
      * Convert object to array.
      * @param array $objects
      * @return array
@@ -29,13 +40,16 @@ class CinemaService {
     }
 
     /**
-     * Extract attribute and message.
-     * @param ConstraintViolationListInterface $errors
+     * Convert values to DateTime.
+     * @param array $data
+     * @param array $columns
      * @return array
+     * @throws \Exception
      */
-    public function mapErrors(ConstraintViolationListInterface $errors) {
-        return array_map(function (ConstraintViolation $error) {
-            return [ $error->getPropertyPath() => $error->getMessage() ];
-        }, iterator_to_array($errors));
+    public function date(array $data, array $columns) {
+        foreach ($columns as $column) {
+            $data[$column] = isset($data[$column]) ? new \DateTime($data[$column]) : null;
+        }
+        return $data;
     }
 }

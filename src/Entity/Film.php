@@ -26,6 +26,11 @@ class Film
      */
     private $title;
 
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $releaseDate;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -39,6 +44,18 @@ class Film
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getReleaseDate(): ?\DateTimeInterface
+    {
+        return $this->releaseDate;
+    }
+
+    public function setReleaseDate(?\DateTimeInterface $releaseDate): self
+    {
+        $this->releaseDate = $releaseDate;
 
         return $this;
     }

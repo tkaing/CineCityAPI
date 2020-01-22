@@ -6,6 +6,7 @@ use App\Entity\Film;
 use App\Repository\FilmRepository;
 use App\Service\CinemaService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,7 +45,8 @@ class FilmController extends AbstractController
      */
     public function by(Request $request) {
 
-        $objects = $this->finder->findBy(json_decode($request->getContent(), true));
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $objects = $this->finder->findBy($this->convert($array));
 
         return $this->json($this->service->mapObjects($objects));
     }
@@ -73,31 +75,6 @@ class FilmController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="update", methods={"PATCH"})
-     */
-    public function update(Request $request, int $id) {
-
-        $object = $this->finder->find($id);
-
-        if (!$object instanceof Film)
-            return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
-
-        $object = $this->serializer->deserialize(
-            $request->getContent(), Film::class, JsonEncoder::FORMAT,
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $object]
-        );
-
-        $errors = $this->validator->validate($object);
-        if ($errors->count() > 0) {
-            return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
-        }
-
-        $this->manager->flush();
-
-        return $this->json($this->serializer->normalize($object));
-    }
-
-    /**
      * @Route("/{id}", name="delete", methods={"DELETE"})
      */
     public function delete(int $id) {
@@ -114,13 +91,37 @@ class FilmController extends AbstractController
     }
 
     /**
-     * @Route("/create", name="create", methods={"POST"})
+     * @Route("/{id}", name="update", methods={"PATCH"})
+     */
+    public function update(Request $request, int $id) {
+
+        $object = $this->finder->find($id);
+
+        if (!$object instanceof Film)
+            return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
+
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $object = $this->serializer->denormalize($this->convert($array), Film::class, JsonEncoder::FORMAT, [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $object
+        ]);
+
+        $errors = $this->validator->validate($object);
+        if ($errors->count() > 0) {
+            return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
+        }
+
+        $this->manager->flush();
+
+        return $this->json($this->serializer->normalize($object));
+    }
+
+    /**
+     * @Route("", name="create", methods={"POST"})
      */
     public function create(Request $request) {
 
-        $object = $this->serializer->deserialize(
-            $request->getContent(), Film::class, JsonEncoder::FORMAT
-        );
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $object = $this->serializer->denormalize($this->convert($array), Film::class, JsonEncoder::FORMAT);
 
         $errors = $this->validator->validate($object);
         if ($errors->count() > 0) {
@@ -131,5 +132,19 @@ class FilmController extends AbstractController
         $this->manager->flush();
 
         return $this->json($this->serializer->normalize($object));
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     * @throws \Exception
+     */
+    public function convert(array $data) {
+
+        $columns = ['releaseDate'];
+
+        $data = $this->service->date($data, $columns);
+
+        return $data;
     }
 }
