@@ -43,7 +43,10 @@ class EventController extends AbstractController
      */
     public function by(Request $request) {
 
-        $objects = $this->finder->findBy(json_decode($request->getContent(), true));
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $array = $this->service->decode($array, [], \DateTime::class);
+
+        $objects = $this->finder->findBy($array);
 
         return $this->json($this->service->mapObjects($objects));
     }
@@ -59,6 +62,32 @@ class EventController extends AbstractController
     }
 
     /**
+     * @Route("/after", name="after", methods={"GET"})
+     */
+    public function after(Request $request) {
+
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $array = $this->service->decode($array, [], \DateTime::class);
+
+        $objects = $this->finder->findBy($array);
+
+        return $this->json($this->service->mapObjects($objects));
+    }
+
+    /**
+     * @Route("/before", name="before", methods={"GET"})
+     */
+    public function before(Request $request) {
+
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $array = $this->service->decode($array, [], \DateTime::class);
+
+        $objects = $this->finder->findBy($array);
+
+        return $this->json($this->service->mapObjects($objects));
+    }
+
+    /**
      * @Route("/{id}", name="one", methods={"GET"})
      */
     public function one(int $id) {
@@ -67,31 +96,6 @@ class EventController extends AbstractController
 
         if (!$object instanceof Event)
             return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
-
-        return $this->json($this->serializer->normalize($object));
-    }
-
-    /**
-     * @Route("/{id}", name="update", methods={"PATCH"})
-     */
-    public function update(Request $request, int $id) {
-
-        $object = $this->finder->find($id);
-
-        if (!$object instanceof Event)
-            return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
-
-        $object = $this->serializer->deserialize(
-            $request->getContent(), Event::class, JsonEncoder::FORMAT,
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $object]
-        );
-
-        $errors = $this->validator->validate($object);
-        if ($errors->count() > 0) {
-            return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
-        }
-
-        $this->manager->flush();
 
         return $this->json($this->serializer->normalize($object));
     }
@@ -113,13 +117,35 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/create", name="create", methods={"POST"})
+     * @Route("/{id}", name="update", methods={"PATCH"})
+     */
+    public function update(Request $request, int $id) {
+
+        $object = $this->finder->find($id);
+
+        if (!$object instanceof Event)
+            return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
+
+        $object = $this->serializer->deserialize($request->getContent(), Event::class, JsonEncoder::FORMAT, [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $object
+        ]);
+
+        $errors = $this->validator->validate($object);
+        if ($errors->count() > 0) {
+            return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
+        }
+
+        $this->manager->flush();
+
+        return $this->json($this->serializer->normalize($object));
+    }
+
+    /**
+     * @Route("", name="create", methods={"POST"})
      */
     public function create(Request $request) {
 
-        $object = $this->serializer->deserialize(
-            $request->getContent(), Event::class, JsonEncoder::FORMAT
-        );
+        $object = $this->serializer->deserialize($request->getContent(), Event::class, JsonEncoder::FORMAT);
 
         $errors = $this->validator->validate($object);
         if ($errors->count() > 0) {
