@@ -6,7 +6,10 @@ use App\Entity\Film;
 use App\Repository\FilmRepository;
 use App\Service\CinemaService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,7 +40,7 @@ class FilmController extends AbstractController
         $this->manager = $manager;
         $this->service = $service;
         $this->validator = $validator;
-        $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
+        $this->serializer = new Serializer([new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor())], [new JsonEncoder()]);
     }
 
     /**
@@ -46,7 +49,9 @@ class FilmController extends AbstractController
     public function by(Request $request) {
 
         $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
-        $objects = $this->finder->findBy($this->convert($array));
+        $array = $this->service->decode($array, ['releaseDate'], \DateTime::class);
+
+        $objects = $this->finder->findBy($array);
 
         return $this->json($this->service->mapObjects($objects));
     }
@@ -57,6 +62,32 @@ class FilmController extends AbstractController
     public function all() {
 
         $objects = $this->finder->findAll();
+
+        return $this->json($this->service->mapObjects($objects));
+    }
+
+    /**
+     * @Route("/after", name="after", methods={"GET"})
+     */
+    public function after(Request $request) {
+
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $array = $this->service->decode($array, ['releaseDate'], \DateTime::class);
+
+        $objects = $this->finder->findBy($array);
+
+        return $this->json($this->service->mapObjects($objects));
+    }
+
+    /**
+     * @Route("/before", name="before", methods={"GET"})
+     */
+    public function before(Request $request) {
+
+        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
+        $array = $this->service->decode($array, ['releaseDate'], \DateTime::class);
+
+        $objects = $this->finder->findBy($array);
 
         return $this->json($this->service->mapObjects($objects));
     }
@@ -100,8 +131,7 @@ class FilmController extends AbstractController
         if (!$object instanceof Film)
             return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
 
-        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
-        $object = $this->serializer->denormalize($this->convert($array), Film::class, JsonEncoder::FORMAT, [
+        $object = $this->serializer->deserialize($request->getContent(), Film::class, JsonEncoder::FORMAT, [
             AbstractNormalizer::OBJECT_TO_POPULATE => $object
         ]);
 
@@ -120,8 +150,7 @@ class FilmController extends AbstractController
      */
     public function create(Request $request) {
 
-        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
-        $object = $this->serializer->denormalize($this->convert($array), Film::class, JsonEncoder::FORMAT);
+        $object = $this->serializer->deserialize($request->getContent(), Film::class, JsonEncoder::FORMAT);
 
         $errors = $this->validator->validate($object);
         if ($errors->count() > 0) {
@@ -132,19 +161,5 @@ class FilmController extends AbstractController
         $this->manager->flush();
 
         return $this->json($this->serializer->normalize($object));
-    }
-
-    /**
-     * @param array $data
-     * @return array
-     * @throws \Exception
-     */
-    public function convert(array $data) {
-
-        $columns = ['releaseDate'];
-
-        $data = $this->service->date($data, $columns);
-
-        return $data;
     }
 }

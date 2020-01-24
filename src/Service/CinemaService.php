@@ -40,16 +40,18 @@ class CinemaService {
     }
 
     /**
-     * Convert values to DateTime.
-     * @param array $data
+     * Convert string to DateTime Object.
+     * @param array $array
      * @param array $columns
+     * @param string $class
      * @return array
-     * @throws \Exception
      */
-    public function date(array $data, array $columns) {
-        foreach ($columns as $column) {
-            $data[$column] = isset($data[$column]) ? new \DateTime($data[$column]) : null;
-        }
-        return $data;
+    public function decode(array $array, array $columns, string $class) {
+        array_walk($array, function (&$item, $k) use ($columns, $class) {
+            if (in_array($k, $columns) && $class == \DateTime::class) {
+                $item = new \DateTime($item);
+            }
+        });
+        return $array;
     }
 }

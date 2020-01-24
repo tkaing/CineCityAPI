@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3650be7395dc1cb88a56053030a75866",
+    "content-hash": "bd6bd31890e15a2c1bf7c4c8820139e9",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -3014,6 +3014,82 @@
                 "reflection"
             ],
             "time": "2019-12-10T11:06:55+00:00"
+        },
+        {
+            "name": "symfony/property-info",
+            "version": "v5.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/property-info.git",
+                "reference": "8c2e9d22806acd5522691074e215bb0b04926877"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/property-info/zipball/8c2e9d22806acd5522691074e215bb0b04926877",
+                "reference": "8c2e9d22806acd5522691074e215bb0b04926877",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2.5",
+                "symfony/inflector": "^4.4|^5.0"
+            },
+            "conflict": {
+                "phpdocumentor/reflection-docblock": "<3.2.2",
+                "phpdocumentor/type-resolver": "<0.3.0",
+                "symfony/dependency-injection": "<4.4"
+            },
+            "require-dev": {
+                "doctrine/annotations": "~1.7",
+                "phpdocumentor/reflection-docblock": "^3.0|^4.0",
+                "symfony/cache": "^4.4|^5.0",
+                "symfony/dependency-injection": "^4.4|^5.0",
+                "symfony/serializer": "^4.4|^5.0"
+            },
+            "suggest": {
+                "phpdocumentor/reflection-docblock": "To use the PHPDoc",
+                "psr/cache-implementation": "To cache results",
+                "symfony/doctrine-bridge": "To use Doctrine metadata",
+                "symfony/serializer": "To use Serializer metadata"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\PropertyInfo\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kévin Dunglas",
+                    "email": "dunglas@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Property Info Component",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "doctrine",
+                "phpdoc",
+                "property",
+                "symfony",
+                "type",
+                "validator"
+            ],
+            "time": "2020-01-04T14:08:26+00:00"
         },
         {
             "name": "symfony/routing",
