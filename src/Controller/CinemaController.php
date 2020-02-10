@@ -39,4 +39,20 @@ class CinemaController extends AbstractController
 
         return $this->json(['date' => $object->format('Y-m-d H:i:s')]);
     }
+
+    /**
+     * @Route("/show", name="show", methods={"GET"})
+     */
+    public function show() {
+
+        return $this->render('cinema/show.html.twig');
+    }
+
+    /**
+     * @Route("/qqc", name="qqc", methods={"GET"})
+     */
+    public function qqc() {
+
+        return $this->json(['xxx' => 'yyy']);
+    }
 }

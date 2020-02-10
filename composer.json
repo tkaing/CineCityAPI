@@ -13,6 +13,7 @@
         "symfony/property-access": "5.0.*",
         "symfony/property-info": "5.0.*",
         "symfony/serializer": "5.0.*",
+        "symfony/twig-bundle": "5.0.*",
         "symfony/validator": "5.0.*",
         "symfony/yaml": "5.0.*"
     },
