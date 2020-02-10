@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Event;
 use App\Repository\EventRepository;
 use App\Service\CinemaService;
+use App\Service\EventService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,16 +27,19 @@ class EventController extends AbstractController
     private $service;
     private $validator;
     private $serializer;
+    private $serviceEvent;
 
     public function __construct(EntityManagerInterface $manager,
                                 ValidatorInterface $validator,
                                 CinemaService $service,
-                                EventRepository $finder) {
+                                EventRepository $finder,
+                                EventService $serviceEvent) {
         $this->finder = $finder;
         $this->manager = $manager;
         $this->service = $service;
         $this->validator = $validator;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
+        $this->serviceEvent = $serviceEvent;
     }
 
     /**
@@ -44,11 +48,11 @@ class EventController extends AbstractController
     public function by(Request $request) {
 
         $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
-        $array = $this->service->decode($array, [], \DateTime::class);
+        //$array['releaseDate'] = new \DateTime($array['releaseDate']);
 
         $objects = $this->finder->findBy($array);
 
-        return $this->json($this->service->mapObjects($objects));
+        return $this->json($this->serviceEvent->mapObjects($objects));
     }
 
     /**
@@ -58,33 +62,7 @@ class EventController extends AbstractController
 
         $objects = $this->finder->findAll();
 
-        return $this->json($this->service->mapObjects($objects));
-    }
-
-    /**
-     * @Route("/after", name="after", methods={"GET"})
-     */
-    public function after(Request $request) {
-
-        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
-        $array = $this->service->decode($array, [], \DateTime::class);
-
-        $objects = $this->finder->findBy($array);
-
-        return $this->json($this->service->mapObjects($objects));
-    }
-
-    /**
-     * @Route("/before", name="before", methods={"GET"})
-     */
-    public function before(Request $request) {
-
-        $array = $this->serializer->decode($request->getContent(), JsonEncoder::FORMAT);
-        $array = $this->service->decode($array, [], \DateTime::class);
-
-        $objects = $this->finder->findBy($array);
-
-        return $this->json($this->service->mapObjects($objects));
+        return $this->json($this->serviceEvent->mapObjects($objects));
     }
 
     /**
@@ -97,7 +75,7 @@ class EventController extends AbstractController
         if (!$object instanceof Event)
             return $this->json(['error' => 'object not found'], JsonResponse::HTTP_NOT_FOUND);
 
-        return $this->json($this->serializer->normalize($object));
+        return $this->json($this->serviceEvent->mapObject($object));
     }
 
     /**
@@ -137,7 +115,7 @@ class EventController extends AbstractController
 
         $this->manager->flush();
 
-        return $this->json($this->serializer->normalize($object));
+        return $this->json($this->serviceEvent->mapObject($object));
     }
 
     /**
@@ -155,6 +133,6 @@ class EventController extends AbstractController
         $this->manager->persist($object);
         $this->manager->flush();
 
-        return $this->json($this->serializer->normalize($object));
+        return $this->json($this->serviceEvent->mapObject($object));
     }
 }

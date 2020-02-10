@@ -17,23 +17,35 @@ class Ticket
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $time;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private $film;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="datetime")
      */
     private $date;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $time;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getTime(): ?string
+    {
+        return $this->time;
+    }
+
+    public function setTime(string $time): self
+    {
+        $this->time = $time;
+
+        return $this;
     }
 
     public function getFilm(): ?int
@@ -48,26 +60,14 @@ class Ticket
         return $this;
     }
 
-    public function getDate(): ?string
+    public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(string $date): self
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    public function getTime(): ?string
-    {
-        return $this->time;
-    }
-
-    public function setTime(string $time): self
-    {
-        $this->time = $time;
 
         return $this;
     }
