@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Film;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -11,9 +12,11 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class CinemaService {
 
+    private $params;
     private $serializer;
 
-    public function __construct() {
+    public function __construct(ParameterBagInterface $params) {
+        $this->params = $params;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
 
@@ -40,18 +43,22 @@ class CinemaService {
     }
 
     /**
-     * Convert string to DateTime Object.
-     * @param array $array
-     * @param array $columns
-     * @param string $class
-     * @return array
+     * Encode id.
+     *
+     * @param int $decoded
+     * @return string
      */
-    public function decode(array $array, array $columns, string $class) {
-        array_walk($array, function (&$item, $k) use ($columns, $class) {
-            if (in_array($k, $columns) && $class == \DateTime::class) {
-                $item = new \DateTime($item);
-            }
-        });
-        return $array;
+    public function encode($decoded) {
+        return base64_encode($decoded . getenv('APP_SECRET'));
+    }
+
+    /**
+     * Decode id.
+     *
+     * @param string $encoded
+     * @return string
+     */
+    public function decode($encoded) {
+        return preg_replace(sprintf('/%s/', getenv('APP_SECRET')), '', base64_decode($encoded));
     }
 }
