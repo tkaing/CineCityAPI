@@ -31,6 +31,11 @@ class Ticket
      */
     private $date;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $user;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -68,6 +73,18 @@ class Ticket
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getUser(): ?int
+    {
+        return $this->user;
+    }
+
+    public function setUser(int $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
