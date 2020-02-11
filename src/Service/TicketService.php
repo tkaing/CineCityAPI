@@ -31,7 +31,7 @@ class TicketService {
     public function mapObject(Ticket $object) {
         $data = $this->serializer->normalize($object);
         $date = $object->getDate();
-        if ($date instanceof \DateTime) $data['date'] = $date->format('Y-m-d H:i');
+        if ($date instanceof \DateTimeInterface) $data['date'] = $date->format('Y-m-d H:i');
         $film = ($object->getFilm() === null) ? null : $this->finderFilm->find($object->getFilm());
         if ($film instanceof Film) $data['film'] = $this->serviceFilm->mapObject($film);
         $user = ($object->getUser() === null) ? null : $this->finderUser->find($object->getUser());

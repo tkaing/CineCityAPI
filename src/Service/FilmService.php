@@ -22,7 +22,7 @@ class FilmService {
     public function mapObject(Film $object) {
         $data = $this->serializer->normalize($object);
         $releaseDate = $object->getReleaseDate();
-        if ($releaseDate instanceof \DateTime) $data['releaseDate'] = $releaseDate->format('Y-m-d H:i');
+        if ($releaseDate instanceof \DateTimeInterface) $data['releaseDate'] = $releaseDate->format('Y-m-d H:i');
         return $data;
     }
 
