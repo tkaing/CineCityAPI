@@ -30,6 +30,11 @@ class Film
      */
     private $releaseDate;
 
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $image;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -55,6 +60,18 @@ class Film
     public function setReleaseDate(?\DateTimeInterface $releaseDate): self
     {
         $this->releaseDate = $releaseDate;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }
