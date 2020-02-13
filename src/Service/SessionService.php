@@ -32,7 +32,7 @@ class SessionService {
     }
 
     public function mapObjects(array $objects) {
-        return array_map(function (Ticket $object) {
+        return array_map(function (Session $object) {
             return $this->mapObject($object);
         }, $objects);
     }
