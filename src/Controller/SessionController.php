@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Film;
 use App\Entity\Session;
 use App\Repository\SessionRepository;
 use App\Service\CinemaService;
@@ -129,6 +130,13 @@ class SessionController extends AbstractController
         if ($errors->count() > 0) {
             return $this->json($this->service->mapErrors($errors), JsonResponse::HTTP_PARTIAL_CONTENT);
         }
+
+        /*if ($object instanceof Session) {
+            $sessions = $this->finder->findBy(['film' => $object->getFilm()]);
+            foreach ($sessions as $session) {
+
+            }
+        }*/
 
         $this->manager->persist($object);
         $this->manager->flush();
